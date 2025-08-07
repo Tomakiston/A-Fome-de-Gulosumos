@@ -1,17 +1,43 @@
-let player, playerWalking;
+let player, playerWalking, playerEating, playerCollided;
 let ground, groundImage;
 let tree, treeImage;
 let cake, cakeImage, cakeGroup;
 let enemy1, enemy2, enemy3, enemyGroup;
 
+let cakeIcon, cakeIconImg;
+
+let score = 0;
+let lifes = 3;
+
+let fullHeart, twoHeart, oneHeart, emptyHeart;
+let fullHeartImg, twoHeartImg, oneHeartImg, emptyHeartImg;
+
+const play = 1;
+const end = 0;
+let gameState = play;
+let gameOver;
+
 function preload() {
     playerWalking = loadAnimation("./assets/walking1.png", "./assets/walking2.png");
+    playerEating = loadAnimation("./assets/eating.png");
+    playerCollided = loadAnimation("./assets/collided.png");
+
     groundImage = loadImage("./assets/ground.png");
     treeImage = loadImage("./assets/tree.png");
     cakeImage = loadImage("./assets/cake.png");
+
     enemy1 = loadImage("./assets/evilCandy1.png");
     enemy2 = loadImage("./assets/evilCandy2.png");
     enemy3 = loadImage("./assets/evilCandy2.png");
+
+    cakeIconImg = loadImage("./assets/cake.png");
+
+    fullHeartImg = loadImage("./assets/fullHeart.png");
+    twoHeartImg = loadImage("./assets/twoHeart.png");
+    oneHeartImg = loadImage("./assets/oneHeart.png");
+    emptyHeartImg = loadImage("./assets/emptyHeart.png");
+
+    gameOver = loadImage("./assets/gameOver.png");
 }
 
 function setup() {
@@ -23,7 +49,32 @@ function setup() {
 
     player = createSprite(150, 313);
     player.addAnimation("walking", playerWalking);
+    player.addAnimation("eating", playerEating);
+    player.addAnimation("collided", playerCollided);
     player.scale = 1.5;
+
+    cakeIcon = createSprite(1020, 40);
+    cakeIcon.addImage("cakeIcon", cakeIconImg);
+    cakeIcon.scale = 1.8;
+
+    emptyHeart = createSprite(40, 20);
+    emptyHeart.addImage("emptyHeart", emptyHeartImg);
+    emptyHeart.visible = false;
+    emptyHeart.scale = 1.8;
+
+    oneHeart = createSprite(40, 20);
+    oneHeart.addImage("oneHeart", oneHeartImg);
+    oneHeart.visible = false;
+    oneHeart.scale = 1.8;
+
+    twoHeart = createSprite(40, 20);
+    twoHeart.addImage("twoHeart", twoHeartImg);
+    twoHeart.visible = false;
+    twoHeart.scale = 1.8;
+
+    fullHeart = createSprite(40, 20);
+    fullHeart.addImage("fullHeart", fullHeartImg);
+    fullHeart.scale = 1.8;
 
     enemyGroup = new Group();
     cakeGroup = new Group();
@@ -37,6 +88,10 @@ function draw() {
     } 
     player.velocityY += 0.8;
     player.collide(ground);
+
+    textSize(25);
+    fill("black");
+    text("X    " + score, 1070, 52);
 
     spawnTrees();
     spawnCakes();
