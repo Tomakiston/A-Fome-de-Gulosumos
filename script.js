@@ -83,19 +83,72 @@ function setup() {
 function draw() {
     background("#34e3af");
 
-    if(keyDown("space") && player.y >= 100) {
-        player.velocityY = -12;
-    } 
-    player.velocityY += 0.8;
-    player.collide(ground);
+    if(gameState === play) {
+        gameOver.visible = false;
 
-    textSize(25);
-    fill("black");
-    text("X    " + score, 1070, 52);
+        if(keyDown("space") && player.y >= 100) {
+            player.velocityY = -12;
+        } 
+        player.velocityY += 0.8;
+        player.collide(ground);
 
-    spawnTrees();
-    spawnCakes();
-    spawnEnemies();
+        textSize(25);
+        fill("black");
+        text("X    " + score, 1070, 52);
+
+        spawnTrees();
+        spawnCakes();
+        spawnEnemies();
+
+        for (let i = 0; i < enemyGroup.length; i++) {
+            if (player.overlap(enemyGroup[i])) {
+                enemyGroup[i].remove();
+                lifes--;
+            }
+        }
+
+        if(lifes === 3) {
+            emptyHeart.visible = false;
+            oneHeart.visible = false;
+            twoHeart.visible = false;
+            fullHeart.visible = true;
+        }
+        if(lifes === 2) {
+            emptyHeart.visible = false;
+            oneHeart.visible = false;
+            twoHeart.visible = true;
+            fullHeart.visible = false;
+        }
+        if(lifes === 1) {
+            emptyHeart.visible = false;
+            oneHeart.visible = true;
+            twoHeart.visible = false;
+            fullHeart.visible = false;
+        }
+        if(lifes === 0) {
+            emptyHeart.visible = true;
+            oneHeart.visible = false;
+            twoHeart.visible = false;
+            fullHeart.visible = false;
+
+            gameState = "end";
+        }
+    }
+
+    if(gameState === end) {
+        gameOver.visible = true;
+
+        player.velocityY = 0;
+        enemyGroup.setVelocityXEach(0);
+        cakeGroup.setVelocityXEach(0);
+        //tree.setVelocityXEach(0);
+
+        player.changeAnimation("collided");
+        
+        enemyGroup.setLifeTimeEach(-1);
+        cakeGroup.setLifeTimeEach(-1);
+        //tree.setLifeTimeEach(-1);
+    }
 
     drawSprites();
 }
