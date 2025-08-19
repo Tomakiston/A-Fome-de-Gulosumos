@@ -20,6 +20,12 @@ let gameOver, gameOverImg;
 let isHit = false;
 let hitTimer = 0;
 
+let canJump = false;
+let lastOnGroundTime = 0;
+const MS = 100;
+
+let pixelFont;
+
 function preload() {
     playerWalking = loadAnimation("./assets/walking1.png", "./assets/walking2.png");
     playerEating = loadAnimation("./assets/eating.png");
@@ -41,14 +47,18 @@ function preload() {
     emptyHeartImg = loadImage("./assets/emptyHeart.png");
 
     gameOverImg = loadImage("./assets/gameOver.png");
+
+    pixelFont = loadFont("Tiny5-Regular.ttf");
 }
 
 function setup() {
     createCanvas(1200,400);
+    textFont(pixelFont);
 
-    ground = createSprite(600, 385)
+    ground = createSprite(600, 385);
     ground.addImage("ground", groundImage);
     ground.scale = 1.5;
+    ground.imovable = true;
 
     player = createSprite(150, 313);
     player.addAnimation("walking", playerWalking);
@@ -56,6 +66,9 @@ function setup() {
     player.addAnimation("collided", playerCollided);
     player.changeAnimation("walking");
     player.scale = 1.5;
+    
+    ground.setCollider("rectangle", 0, 0, ground.width, 30);
+    player.setCollider("rectangle", 0, 0, player.width*0.5, player.height*1);
 
     cakeIcon = createSprite(1020, 40);
     cakeIcon.addImage("cakeIcon", cakeIconImg);
@@ -92,18 +105,32 @@ function setup() {
 function draw() {
     background("#34e3af");
 
-    textSize(25);
+    textSize(30);
     fill("black");
-    text("X    " + score, 1070, 52);
+    text("X    " + score, 1070, 49);
 
     if(gameState === play) {
         gameOver.visible = false;
 
-        if(keyDown("space") && player.y >= 100) {
+        /*if(keyWentDown("space") && player.touching.ground) {
             player.velocityY = -12;
-        } 
+        } */
         player.velocityY += 0.8;
-        player.collide(ground);
+        const onGround = player.collide(ground);
+        if(onGround) {
+            canJump = true;
+            lastOnGroundTime = millis();
+        }
+        else {
+            if(millis() - lastOnGroundTime > MS) {
+                canJump = false;
+            }
+        }
+        const jumpPressed = keyWentDown("space") || keyWentDown(" ");
+        if(jumpPressed && canJump) {
+            player.velocityY = -13;
+            canJump = false;
+        }
 
         spawnTrees();
         spawnCakes();
