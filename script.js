@@ -1,6 +1,6 @@
 let player, playerWalking, playerEating, playerCollided;
 let ground, groundImage;
-let tree, treeImage;
+let tree, treeImage, treeGroup;
 let cake, cakeImage, cakeGroup;
 let enemy1, enemy2, enemy3, enemyGroup;
 
@@ -15,7 +15,7 @@ let fullHeartImg, twoHeartImg, oneHeartImg, emptyHeartImg;
 const play = 1;
 const end = 0;
 let gameState = play;
-let gameOver;
+let gameOver, gameOverImg;
 
 function preload() {
     playerWalking = loadAnimation("./assets/walking1.png", "./assets/walking2.png");
@@ -37,7 +37,7 @@ function preload() {
     oneHeartImg = loadImage("./assets/oneHeart.png");
     emptyHeartImg = loadImage("./assets/emptyHeart.png");
 
-    gameOver = loadImage("./assets/gameOver.png");
+    gameOverImg = loadImage("./assets/gameOver.png");
 }
 
 function setup() {
@@ -76,12 +76,21 @@ function setup() {
     fullHeart.addImage("fullHeart", fullHeartImg);
     fullHeart.scale = 1.8;
 
+    gameOver = createSprite(width / 2, height / 2);
+    gameOver.addImage(gameOverImg);
+    gameOver.visible = false;
+
     enemyGroup = new Group();
     cakeGroup = new Group();
+    treeGroup = new Group();
 }   
 
 function draw() {
     background("#34e3af");
+
+    textSize(25);
+    fill("black");
+    text("X    " + score, 1070, 52);
 
     if(gameState === play) {
         gameOver.visible = false;
@@ -91,10 +100,6 @@ function draw() {
         } 
         player.velocityY += 0.8;
         player.collide(ground);
-
-        textSize(25);
-        fill("black");
-        text("X    " + score, 1070, 52);
 
         spawnTrees();
         spawnCakes();
@@ -131,8 +136,16 @@ function draw() {
             twoHeart.visible = false;
             fullHeart.visible = false;
 
-            gameState = "end";
+            gameState = end;
         }
+
+        for (let i = 0; i < cakeGroup.length; i++) {
+            if (player.overlap(cakeGroup[i])) {
+                cakeGroup[i].remove();
+                score++;
+            }
+        }
+
     }
 
     if(gameState === end) {
@@ -141,13 +154,13 @@ function draw() {
         player.velocityY = 0;
         enemyGroup.setVelocityXEach(0);
         cakeGroup.setVelocityXEach(0);
-        //tree.setVelocityXEach(0);
+        treeGroup.setVelocityXEach(0);
 
         player.changeAnimation("collided");
         
-        enemyGroup.setLifeTimeEach(-1);
-        cakeGroup.setLifeTimeEach(-1);
-        //tree.setLifeTimeEach(-1);
+        enemyGroup.setLifetimeEach(-1);
+        cakeGroup.setLifetimeEach(-1);
+        treeGroup.setLifetimeEach(-1);
     }
 
     drawSprites();
@@ -165,6 +178,7 @@ function spawnTrees() {
         player.depth++;
 
         tree.lifetime = 250;
+        treeGroup.add(tree);
     }
 }
 
