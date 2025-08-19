@@ -17,6 +17,9 @@ const end = 0;
 let gameState = play;
 let gameOver, gameOverImg;
 
+let isHit = false;
+let hitTimer = 0;
+
 function preload() {
     playerWalking = loadAnimation("./assets/walking1.png", "./assets/walking2.png");
     playerEating = loadAnimation("./assets/eating.png");
@@ -51,6 +54,7 @@ function setup() {
     player.addAnimation("walking", playerWalking);
     player.addAnimation("eating", playerEating);
     player.addAnimation("collided", playerCollided);
+    player.changeAnimation("walking");
     player.scale = 1.5;
 
     cakeIcon = createSprite(1020, 40);
@@ -143,7 +147,15 @@ function draw() {
             if (player.overlap(cakeGroup[i])) {
                 cakeGroup[i].remove();
                 score++;
+
+                player.changeAnimation("eating");
+                isHit = true;
+                hitTimer = millis();
             }
+        }
+        if(isHit && millis() - hitTimer > 250) {
+            player.changeAnimation("walking");
+            isHit = false;
         }
 
     }
